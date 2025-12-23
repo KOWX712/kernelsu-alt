@@ -114,19 +114,25 @@ export function spawn(command, args = [], options = {}) {
 }
 
 /**
+ * Request the WebView enter/exit full screen.
+ * @param {Boolean} isFullScreen - full screen state
+ */
+export function fullScreen(isFullScreen) {
+    if (typeof ksu !== 'undefined') {
+        ksu.fullScreen(isFullScreen);
+    }
+}
+
+/**
  * Show android toast message
  * @param {string} message - The message to display in toast
  * @returns {void}
  */
 export function toast(message) {
-    try {
-        if (typeof ksu !== 'undefined') {
-            ksu.toast(message);
-        } else {
-            console.log(message);
-        }
-    } catch (error) {   
-        console.error("Error displaying toast:", error);
+    if (typeof ksu !== 'undefined') {
+        ksu.toast(message);
+    } else {
+        console.log(message);
     }
 }
 
