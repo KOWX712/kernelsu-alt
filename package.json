@@ -1,6 +1,6 @@
 {
   "name": "kernelsu-alt",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Library for KernelSU and KernelSU-Next module WebUI",
   "keywords": [
     "su",
@@ -8,10 +8,16 @@
     "module",
     "webui"
   ],
+  "type": "module",
   "license": "Apache-2.0",
   "author": "KOWX712",
-  "type": "commonjs",
-  "main": "index.js",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json",
+    "./README.md": "./README.md"
+  },
   "scripts": {
     "test": "npm run test"
   }
