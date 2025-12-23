@@ -1,7 +1,6 @@
 /**
  * Imported from https://www.npmjs.com/package/kernelsu
  * Modified version by KOWX712
- * Added KernelSU package manager API --since v2.1.1
  */
 
 let callbackCounter = 0;
@@ -124,6 +123,18 @@ function fullScreen(isFullScreen) {
 }
 
 /**
+ * Request the WebView to set padding to 0 or system bar insets
+ * Disabled by default
+ * Enabled automatically if there's a request on `internal/insets.css`
+ * @param {Boolean} isEnable - insets enable state
+ */
+function enableInsets(isEnable) {
+    if (typeof ksu !== 'undefined') {
+        ksu.enableInsets(isEnable);
+    }
+}
+
+/**
  * Show android toast message
  * @param {string} message - The message to display in toast
  * @returns {void}
@@ -232,4 +243,4 @@ function getPackagesInfo(pkg) {
     });
 }
 
-export { exec, spawn, fullScreen, toast, listPackages, getPackagesInfo };
+export { exec, spawn, fullScreen, enableInsets, toast, listPackages, getPackagesInfo };
