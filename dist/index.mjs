@@ -1,4 +1,7 @@
 /**
+ * Source: https://github.com/KOWX712/kernelsu-alt
+ * Npm: https://www.npmjs.com/package/kernelsu-alt
+ * 
  * Imported from https://www.npmjs.com/package/kernelsu
  * Modified version by KOWX712
  */
@@ -123,6 +126,9 @@ function fullScreen(isFullScreen) {
 }
 
 /**
+ * Supported since KernelSU v3.0.0-55 (32234)
+ * Supported since APatch 11169
+ * 
  * Request the WebView to set padding to 0 or system bar insets
  * Disabled by default
  * Enabled automatically if there's a request on `internal/insets.css`
@@ -148,6 +154,10 @@ function toast(message) {
 }
 
 /**
+ * Supported since KernelSU v2.1.1-14 (22082)
+ * Supported since APatch 11159
+ * Fallback to pm list packages when unsupported
+ * 
  * List installed packages
  * @param {string} [type="all"] - The type of packages to list: "user", "system", or "all".
  * @returns {Promise<string[]>} A promise that resolves to an array of package names.
@@ -205,6 +215,9 @@ async function listPackages(type) {
  */
 
 /**
+ * Supported since KernelSU v2.1.1-14 (22082)
+ * Supported since APatch 11159
+ * 
  * Retrieves detailed information for one or more packages.
  * @param {string|string[]} pkg - A single package name or an array of package names.
  * @returns {Promise<PackagesInfo|PackagesInfo[]>} Resolves with:
