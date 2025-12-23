@@ -157,35 +157,3 @@ console.log(info);
 const infos = await getPackagesInfo(['com.android.settings', 'com.android.shell']);
 console.log(infos);
 ```
-
-### getPackagesIcon
-
-Retrieves the application icon for one or more packages, encoded as a base64 string.
-- `pkg` `<string|string[]>` A single package name or an array of package names.
-- `size` `<number>` The desired width and height of the icon in pixels. Defaults to `100`.
-
-Returns a `Promise<PackagesIcon|PackagesIcon[]>` which resolves to:
-- A single package icon object if a single package name is provided.
-- An array of package icon objects if an array of package names is provided.
-
-The `PackagesIcon` object has the following structure:
-- `packageName` `<string>` - Package name of the application.
-- `icon` `<string>` - A base64 encoded image string. This can be used directly in an `<img>` tag's `src` attribute.
-
-```javascript
-import { getPackagesIcon } from 'kernelsu-alt';
-
-// Get icon for a single package
-const { icon } = await getPackagesIcon('com.android.settings');
-const img = document.createElement('img');
-img.src = icon;
-document.body.appendChild(img);
-
-// Get icons for multiple packages at a different size
-const icons = await getPackagesIcon(['com.android.settings', 'com.android.shell'], 80);
-icons.forEach(({ icon }) => {
-  const img = document.createElement('img');
-  img.src = icon;
-  document.body.appendChild(img);
-});
-```

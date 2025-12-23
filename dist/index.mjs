@@ -1,7 +1,7 @@
 /**
  * Imported from https://www.npmjs.com/package/kernelsu
  * Modified version by KOWX712
- * Added KernelSU-Next package manager API
+ * Added KernelSU package manager API --since v2.1.1
  */
 
 let callbackCounter = 0;
@@ -20,7 +20,7 @@ function getUniqueCallbackName(prefix) {
  *   - stdout {string} - Standard output from the command
  *   - stderr {string} - Standard error from the command
  */
-export function exec(command, options = {}) {
+function exec(command, options = {}) {
     return new Promise((resolve, reject) => {
         const callbackFuncName = getUniqueCallbackName("exec");
         window[callbackFuncName] = (errno, stdout, stderr) => {
@@ -78,7 +78,7 @@ class Stdio {
  *   - on(event, listener): Attach event listener ('exit', 'error')
  *   - emit(event, ...args): Emit events internally
  */
-export function spawn(command, args = [], options = {}) {
+function spawn(command, args = [], options = {}) {
     const child = {
         listeners: {},
         stdout: new Stdio(),
@@ -117,7 +117,7 @@ export function spawn(command, args = [], options = {}) {
  * Request the WebView enter/exit full screen.
  * @param {Boolean} isFullScreen - full screen state
  */
-export function fullScreen(isFullScreen) {
+function fullScreen(isFullScreen) {
     if (typeof ksu !== 'undefined') {
         ksu.fullScreen(isFullScreen);
     }
@@ -128,7 +128,7 @@ export function fullScreen(isFullScreen) {
  * @param {string} message - The message to display in toast
  * @returns {void}
  */
-export function toast(message) {
+function toast(message) {
     if (typeof ksu !== 'undefined') {
         ksu.toast(message);
     } else {
@@ -141,17 +141,10 @@ export function toast(message) {
  * @param {string} [type="all"] - The type of packages to list: "user", "system", or "all".
  * @returns {Promise<string[]>} A promise that resolves to an array of package names.
  */
-export async function listPackages(type = "all") {
-    const pkgTypes = {
-        all: () => globalThis.ksu?.listAllPackages(),
-        user: () => globalThis.ksu?.listUserPackages(),
-        system: () => globalThis.ksu?.listSystemPackages(),
-    };
-
-    const pkgType = pkgTypes[type];
-    if (typeof pkgType === 'function') {
+async function listPackages(type) {
+    if (typeof globalThis.ksu?.listPackages === 'function') {
         try {
-            return JSON.parse(pkgType());
+            return JSON.parse(ksu.listPackages(type));
         } catch (error) {
             // Fallback to pm list package
         }
@@ -209,7 +202,7 @@ export async function listPackages(type = "all") {
  *   - an array of package information objects if multiple packages are provided
  *   - [{},{}]
  */
-export function getPackagesInfo(pkg) {
+function getPackagesInfo(pkg) {
     return new Promise((resolve, reject) => {
         if (!pkg) {
             return resolve([]);
@@ -239,48 +232,4 @@ export function getPackagesInfo(pkg) {
     });
 }
 
-/**
- * @typedef {object} PackagesIcon
- * @property {string} packageName - Package name of the application.
- * @property {string} icon - Ready-to-use base64 image for src.
- */
-
-/**
- * Retrieves base64 icon for one or more packages.
- * @param {string|string[]} pkg - A single package name or an array of package names.
- * @param {number} [size=100] - The dimension of the icon to retrieve.
- * @returns {Promise<PackagesIcon|PackagesIcon[]>} Resolves with:
- *   - a single icon object if one package is provided
- *   - {}
- *   - an array of icon objects if multiple packages are provided
- *   - [{},{}]
- */
-export function getPackagesIcon(pkg, size = 100) {
-    return new Promise((resolve, reject) => {
-        if (!pkg) {
-            return resolve([]);
-        }
-
-        if (typeof globalThis.ksu?.getPackagesIcons !== 'function') {
-            return reject(new Error("ksu.getPackagesIcons is not available."));
-        }
-
-        const pkgs = Array.isArray(pkg) ? pkg : [pkg];
-        if (pkgs.length === 0) {
-            return resolve([]);
-        }
-
-        try {
-            const iconJson = ksu.getPackagesIcons(JSON.stringify(pkgs), size);
-            const result = JSON.parse(iconJson);
-            
-            if (!Array.isArray(pkg) && result.length === 1) {
-                resolve(result[0]);
-            } else {
-                resolve(result);
-            }
-        } catch (error) {
-            reject(new Error(`Failed to get package icon: ${error.message}`));
-        }
-    });
-}
+export { exec, spawn, fullScreen, toast, listPackages, getPackagesInfo };
