@@ -1,0 +1,191 @@
+# Library for KernelSU's module WebUI
+
+## Install
+
+```sh
+yarn add kernelsu
+```
+
+## API
+
+### exec
+
+Spawns a **root** shell and runs a command within that shell, passing the `stdout` and `stderr` to a Promise when complete.
+- `command` `<string>` The command to run, with space-separated arguments.
+- `options` `<Object>`
+  - `cwd` - Current working directory of the child process
+  - `env` - Environment key-value pairs
+
+```javascript
+import { exec } from 'kernelsu';
+
+const { errno, stdout, stderr } = await exec('ls -l', { cwd: '/tmp' });
+
+if (errno === 0) {
+    // success
+    console.log(stdout);
+}
+```
+
+### spawn
+
+Spawns a new process using the given `command` in **root** shell, with command-line arguments in `args`. If omitted, `args` defaults to an empty array.
+
+Returns a `ChildProcess`, Instances of the ChildProcess represent spawned child processes.
+
+- `command` `<string>` The command to run.
+- `args` `<string[]>` List of string arguments.
+- `options` `<Object>`:
+  - `cwd` `<string>` - Current working directory of the child process
+  - `env` `<Object>` - Environment key-value pairs
+
+Example of running `ls -lh /data`, capturing `stdout`, `stderr`, and the exit code:
+
+```javascript
+import { spawn } from 'kernelsu';
+
+const ls = spawn('ls', ['-lh', '/data']);
+
+ls.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`);
+});
+
+ls.stderr.on('data', (data) => {
+  console.log(`stderr: ${data}`);
+});
+
+ls.on('exit', (code) => {
+  console.log(`child process exited with code ${code}`);
+});
+``` 
+
+#### ChildProcess
+
+##### Event 'exit'
+
+- `code` `<number>` The exit code if the child exited on its own.
+
+The `'exit'` event is emitted after the child process ends. If the process exited, `code` is the final exit code of the process, otherwise null
+
+##### Event 'error'
+
+- `err` `<Error>` The error.
+
+The `'error'` event is emitted whenever:
+
+- The process could not be spawned.
+- The process could not be killed.
+
+##### `stdout`
+
+A `Readable Stream` that represents the child process's `stdout`.
+
+```javascript
+const subprocess = spawn('ls');
+
+subprocess.stdout.on('data', (data) => {
+  console.log(`Received chunk ${data}`);
+});
+```
+
+#### `stderr`
+
+A `Readable Stream` that represents the child process's `stderr`.
+
+### fullScreen
+
+Request the WebView enter/exit full screen.
+
+```javascript
+import { fullScreen } from 'kernelsu';
+fullScreen(true);
+```
+
+### toast
+
+Show a toast message.
+
+```javascript
+import { toast } from 'kernelsu';
+toast('Hello, world!');
+```
+
+### listPackages
+
+Lists installed packages on the Android system.
+- `type` `<string>` The type of packages to list. Can be one of `'user'`, `'system'`, or `'all'`. Defaults to `'all'`.
+
+Returns a `Promise<string[]>` which resolves to an array of package names.
+
+```javascript
+import { listPackages } from 'kernelsu';
+
+// Get all installed packages
+const allPackages = await listPackages();
+console.log(allPackages);
+
+// Get only user-installed packages
+const userPackages = await listPackages('user');
+console.log(userPackages);
+```
+
+### getPackagesInfo
+
+Retrieves detailed information for one or more packages.
+- `pkg` `<string|string[]>` A single package name or an array of package names.
+
+Returns a `Promise<PackagesInfo|PackagesInfo[]>` which resolves to:
+- A single package information object if a single package name is provided.
+- An array of package information objects if an array of package names is provided.
+
+The `PackagesInfo` object has the following structure:
+- `packageName` `<string>` - Package name of the application.
+- `versionName` `<string>` - Version of the application.
+- `versionCode` `<number>` - Version code of the application.
+- `appLabel` `<string>` - Display name of the application.
+- `isSystem` `<boolean>` - Whether the application is a system app.
+- `uid` `<number>` - UID of the application.
+
+```javascript
+import { getPackagesInfo } from 'kernelsu';
+
+// Get info for a single package
+const info = await getPackagesInfo('com.android.settings');
+console.log(info);
+
+// Get info for multiple packages
+const infos = await getPackagesInfo(['com.android.settings', 'com.android.shell']);
+console.log(infos);
+```
+
+### getPackagesIcon
+
+Retrieves the application icon for one or more packages, encoded as a base64 string.
+- `pkg` `<string|string[]>` A single package name or an array of package names.
+- `size` `<number>` The desired width and height of the icon in pixels. Defaults to `100`.
+
+Returns a `Promise<PackagesIcon|PackagesIcon[]>` which resolves to:
+- A single package icon object if a single package name is provided.
+- An array of package icon objects if an array of package names is provided.
+
+The `PackagesIcon` object has the following structure:
+- `packageName` `<string>` - Package name of the application.
+- `icon` `<string>` - A base64 encoded image string. This can be used directly in an `<img>` tag's `src` attribute.
+
+```javascript
+import { getPackagesIcon } from 'kernelsu';
+
+// Get icon for a single package
+const { icon } = await getPackagesIcon('com.android.settings');
+const img = document.createElement('img');
+img.src = icon;
+document.body.appendChild(img);
+
+// Get icons for multiple packages at a different size
+const icons = await getPackagesIcon(['com.android.settings', 'com.android.shell'], 80);
+icons.forEach(({ icon }) => {
+  const img = document.createElement('img');
+  img.src = icon;
+  document.body.appendChild(img);
+});
+```
