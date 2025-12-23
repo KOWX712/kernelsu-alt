@@ -3,7 +3,7 @@
 ## Install
 
 ```sh
-yarn add kernelsu
+npm i kernelsu-alt
 ```
 
 ## API
@@ -17,7 +17,7 @@ Spawns a **root** shell and runs a command within that shell, passing the `stdou
   - `env` - Environment key-value pairs
 
 ```javascript
-import { exec } from 'kernelsu';
+import { exec } from 'kernelsu-alt';
 
 const { errno, stdout, stderr } = await exec('ls -l', { cwd: '/tmp' });
 
@@ -42,7 +42,7 @@ Returns a `ChildProcess`, Instances of the ChildProcess represent spawned child 
 Example of running `ls -lh /data`, capturing `stdout`, `stderr`, and the exit code:
 
 ```javascript
-import { spawn } from 'kernelsu';
+import { spawn } from 'kernelsu-alt';
 
 const ls = spawn('ls', ['-lh', '/data']);
 
@@ -97,7 +97,7 @@ A `Readable Stream` that represents the child process's `stderr`.
 Request the WebView enter/exit full screen.
 
 ```javascript
-import { fullScreen } from 'kernelsu';
+import { fullScreen } from 'kernelsu-alt';
 fullScreen(true);
 ```
 
@@ -106,7 +106,7 @@ fullScreen(true);
 Show a toast message.
 
 ```javascript
-import { toast } from 'kernelsu';
+import { toast } from 'kernelsu-alt';
 toast('Hello, world!');
 ```
 
@@ -118,7 +118,7 @@ Lists installed packages on the Android system.
 Returns a `Promise<string[]>` which resolves to an array of package names.
 
 ```javascript
-import { listPackages } from 'kernelsu';
+import { listPackages } from 'kernelsu-alt';
 
 // Get all installed packages
 const allPackages = await listPackages();
@@ -147,7 +147,7 @@ The `PackagesInfo` object has the following structure:
 - `uid` `<number>` - UID of the application.
 
 ```javascript
-import { getPackagesInfo } from 'kernelsu';
+import { getPackagesInfo } from 'kernelsu-alt';
 
 // Get info for a single package
 const info = await getPackagesInfo('com.android.settings');
@@ -173,7 +173,7 @@ The `PackagesIcon` object has the following structure:
 - `icon` `<string>` - A base64 encoded image string. This can be used directly in an `<img>` tag's `src` attribute.
 
 ```javascript
-import { getPackagesIcon } from 'kernelsu';
+import { getPackagesIcon } from 'kernelsu-alt';
 
 // Get icon for a single package
 const { icon } = await getPackagesIcon('com.android.settings');
