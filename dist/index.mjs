@@ -132,12 +132,35 @@ function fullScreen(isFullScreen) {
  * Request the WebView to set padding to 0 or system bar insets
  * Disabled by default
  * Enabled automatically if there's a request on `internal/insets.css`
+ * @deprecated Since 3.1.0 - Use {@link enableEdgeToEdge} instead
  * @param {Boolean} isEnable - insets enable state
  */
 function enableInsets(isEnable) {
-    if (typeof ksu !== 'undefined') {
-        ksu.enableInsets(isEnable);
-    }
+    try {
+        enableEdgeToEdge(isEnable);
+    } catch (e) { console.warn(e); }
+}
+
+/**
+ * Supported since KernelSU v3.0.0-115 (32265)
+ * 
+ * Request the WebView to set padding to 0 or system bar insets
+ * Disabled by default
+ * @param {Boolean} isEnable - insets enable state
+ * @returns {Promise<boolean>} A promise that resolves to true if the request is successful, false otherwise
+ */
+function enableEdgeToEdge(isEnable) {
+    return new Promise((resolve, reject) => {
+        if (typeof ksu?.enableEdgeToEdge === 'function') {
+            ksu.enableEdgeToEdge(isEnable);
+            return resolve(true);
+        }
+        if (typeof ksu?.enableInsets === 'function') {
+            ksu.enableInsets(isEnable);
+            return resolve(true);
+        }
+        reject(new Error(ksu ? 'enableEdgeToEdge is not supported' : 'ksu is not defined'));
+    });
 }
 
 /**

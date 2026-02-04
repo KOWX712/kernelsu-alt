@@ -101,7 +101,7 @@ import { fullScreen } from 'kernelsu-alt';
 fullScreen(true);
 ```
 
-### enableInsets
+### enableEdgeToEdge
 
 Request the WebView to set padding to 0 or system bar insets
 
@@ -109,10 +109,14 @@ Request the WebView to set padding to 0 or system bar insets
 - To get insets value and enable this automatically, you can
   - add `@import "https://mui.kernelsu.org/internal/insets.css";` in css OR
   - add `<link rel="stylesheet" type="text/css" href="/internal/insets.css" />` in html.
+- Note: `enableInsets` is renamed to `enableEdgeToEdge` since KernelSU 32265. Old api is kept and marked as deprecated for compatibility, there is no plan to remove it currently.
 
 ```javascript
-import { enableInsets } from 'kernelsu-alt';
-enableInsets(true);
+import { enableEdgeToEdge } from 'kernelsu-alt';
+const result = await enableEdgeToEdge(true);
+if (!result) {
+  console.log('Function not implemented');
+}
 ```
 
 ### toast
