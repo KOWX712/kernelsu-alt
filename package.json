@@ -1,6 +1,6 @@
 {
   "name": "kernelsu-alt",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Library for KernelSU and KernelSU-Next module WebUI",
   "keywords": [
     "su",
@@ -13,8 +13,12 @@
   "author": "KOWX712",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
     "./package.json": "./package.json",
     "./README.md": "./README.md"
   },

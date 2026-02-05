@@ -279,4 +279,4 @@ function getPackagesInfo(pkg) {
     });
 }
 
-export { exec, spawn, fullScreen, enableInsets, toast, listPackages, getPackagesInfo };
+export { exec, spawn, fullScreen, enableInsets, enableEdgeToEdge, toast, listPackages, getPackagesInfo };
