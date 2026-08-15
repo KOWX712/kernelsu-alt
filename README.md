@@ -8,6 +8,24 @@ npm i kernelsu-alt
 
 ## API
 
+### isKsuWebui
+
+Check if KernelSU WebUI bridge is available in the current environment.
+
+Returns a `boolean` indicating whether the `ksu` object is available.
+
+```javascript
+import { isKsuWebui } from 'kernelsu-alt';
+
+if (isKsuWebui()) {
+  console.log('Running in KernelSU WebUI environment');
+  // Safe to use KernelSU APIs
+} else {
+  console.log('Not running in KernelSU WebUI environment');
+  // Fallback behavior
+}
+```
+
 ### exec
 
 Spawns a **root** shell and runs a command within that shell, passing the `stdout` and `stderr` to a Promise when complete.

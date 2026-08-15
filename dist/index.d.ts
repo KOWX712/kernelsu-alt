@@ -63,6 +63,12 @@ export interface PackagesInfo {
 }
 
 /**
+ * Check if KernelSU WebUI bridge is available
+ * @returns True if ksu object is available in the global scope
+ */
+export function isKsuWebui(): boolean;
+
+/**
  * Execute shell command with ksu.exec
  * @param command - The command to execute
  * @param options - Options object

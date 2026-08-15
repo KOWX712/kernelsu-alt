@@ -12,6 +12,14 @@ function getUniqueCallbackName(prefix) {
 }
 
 /**
+ * Check if KernelSU WebUI bridge is available
+ * @returns {boolean} True if ksu object is available in the global scope
+ */
+function isKsuWebui() {
+    return typeof globalThis.ksu !== 'undefined';
+}
+
+/**
  * Execute shell command with ksu.exec
  * @param {string} command - The command to execute
  * @param {Object} [options={}] - Options object containing:
@@ -33,7 +41,7 @@ function exec(command, options = {}) {
             delete window[successName];
         }
         try {
-            if (typeof ksu !== 'undefined') {
+            if (isKsuWebui()) {
                 ksu.exec(command, JSON.stringify(options), callbackFuncName);
             } else {
                 resolve({ errno: 1, stdout: "", stderr: "ksu is not defined" });
@@ -100,7 +108,7 @@ function spawn(command, args = [], options = {}) {
     window[callbackName] = child;
     child.on("exit", () => delete window[callbackName]);
     try {
-        if (typeof ksu !== 'undefined') {
+        if (isKsuWebui()) {
             ksu.spawn(command, JSON.stringify(args), JSON.stringify(options), callbackName);
         } else {
             setTimeout(() => {
@@ -120,7 +128,7 @@ function spawn(command, args = [], options = {}) {
  * @param {Boolean} isFullScreen - full screen state
  */
 function fullScreen(isFullScreen) {
-    if (typeof ksu !== 'undefined') {
+    if (isKsuWebui()) {
         ksu.fullScreen(isFullScreen);
     }
 }
@@ -159,7 +167,7 @@ function enableEdgeToEdge(isEnable) {
             ksu.enableInsets(isEnable);
             return resolve(true);
         }
-        reject(new Error(ksu ? 'enableEdgeToEdge is not supported' : 'ksu is not defined'));
+        reject(new Error(isKsuWebui() ? 'enableEdgeToEdge is not supported' : 'ksu is not defined'));
     });
 }
 
@@ -169,7 +177,7 @@ function enableEdgeToEdge(isEnable) {
  * @returns {void}
  */
 function toast(message) {
-    if (typeof ksu !== 'undefined') {
+    if (isKsuWebui()) {
         ksu.toast(message);
     } else {
         console.log(message);
@@ -279,4 +287,4 @@ function getPackagesInfo(pkg) {
     });
 }
 
-export { exec, spawn, fullScreen, enableInsets, enableEdgeToEdge, toast, listPackages, getPackagesInfo };
+export { exec, spawn, fullScreen, enableInsets, enableEdgeToEdge, toast, listPackages, getPackagesInfo, isKsuWebui };
