@@ -52,7 +52,7 @@ Spawns a new process using the given `command` in **root** shell, with command-l
 Returns a `ChildProcess`, Instances of the ChildProcess represent spawned child processes.
 
 - `command` `<string>` The command to run.
-- `args` `<string[]>` List of string arguments.
+- `args` `<string[]>` List of string arguments. Also accepts an options object as the 2nd argument: `spawn(command, options)`.
 - `options` `<Object>`:
   - `cwd` `<string>` - Current working directory of the child process
   - `env` `<Object>` - Environment key-value pairs

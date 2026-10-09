@@ -89,6 +89,10 @@ class Stdio {
  *   - emit(event, ...args): Emit events internally
  */
 function spawn(command, args = [], options = {}) {
+    if (!Array.isArray(args)) {
+        options = args;
+        args = [];
+    }
     const child = {
         listeners: {},
         stdout: new Stdio(),
