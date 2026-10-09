@@ -134,3 +134,8 @@ export function listPackages(type?: "user" | "system" | "all"): Promise<string[]
  */
 export function getPackagesInfo(pkg: string): Promise<PackagesInfo>;
 export function getPackagesInfo(pkg: string[]): Promise<PackagesInfo[]>;
+/**
+ * Close the WebUI window.
+ */
+export function exit(): void;
+

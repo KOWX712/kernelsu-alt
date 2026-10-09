@@ -287,4 +287,24 @@ function getPackagesInfo(pkg) {
     });
 }
 
-export { exec, spawn, fullScreen, enableInsets, enableEdgeToEdge, toast, listPackages, getPackagesInfo, isKsuWebui };
+/**
+ * Close the WebUI window.
+ */
+function exit() {
+    if (isKsuWebui()) {
+        ksu.exit();
+    }
+}
+
+export {
+    exec,
+    spawn,
+    fullScreen,
+    enableInsets,
+    enableEdgeToEdge,
+    toast,
+    listPackages,
+    getPackagesInfo,
+    isKsuWebui,
+    exit,
+};

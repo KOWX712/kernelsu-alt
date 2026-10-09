@@ -146,6 +146,15 @@ import { toast } from 'kernelsu-alt';
 toast('Hello, world!');
 ```
 
+### exit
+
+Close the WebUI window.
+
+```javascript
+import { exit } from 'kernelsu-alt';
+exit();
+```
+
 ### listPackages
 
 Lists installed packages on the Android system.
