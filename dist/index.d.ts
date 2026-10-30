@@ -139,3 +139,113 @@ export function getPackagesInfo(pkg: string[]): Promise<PackagesInfo[]>;
  */
 export function exit(): void;
 
+/**
+ * A file object, returned by {@link KsuIO.File}.
+ */
+export interface FileInstance {
+    exists(): boolean;
+    isFile(): boolean;
+    isDirectory(): boolean;
+    canRead(): boolean;
+    canWrite(): boolean;
+    canExecute(): boolean;
+    createNewFile(): boolean;
+    delete(): boolean;
+    deleteRecursive(): boolean;
+    mkdir(): boolean;
+    mkdirs(): boolean;
+    renameTo(destPath: string): boolean;
+    list(): string[];
+    listFiles(): string[];
+    length(): number;
+    lastModified(): number;
+    setLastModified(time: number): boolean;
+    getAbsolutePath(): string;
+    getCanonicalPath(): string;
+    getParent(): string | null;
+    getPath(): string;
+    getName(): string;
+    isHidden(): boolean;
+    isBlock(): boolean;
+    isCharacter(): boolean;
+    isSymlink(): boolean;
+    createNewSymlink(target: string): boolean;
+    createNewLink(existing: string): boolean;
+    clear(): boolean;
+    setReadOnly(): boolean;
+    setReadable(readable: boolean, ownerOnly: boolean): boolean;
+    setWritable(writable: boolean, ownerOnly: boolean): boolean;
+    setExecutable(executable: boolean, ownerOnly: boolean): boolean;
+    getFreeSpace(): number;
+    getTotalSpace(): number;
+    getUsableSpace(): number;
+    newInputStream(): string;
+    newOutputStream(append?: boolean): string;
+    toString(): string;
+}
+
+export interface FileInputStreamInstance {
+    open(path: string): string;
+    read(id: string, maxBytes?: number): string;
+    available(id: string): number;
+    close(id: string): boolean;
+}
+
+export interface FileOutputStreamInstance {
+    open(path: string, append?: boolean): string;
+    write(id: string, base64: string): boolean;
+    writeByte(id: string, b: number): boolean;
+    flush(id: string): boolean;
+    close(id: string): boolean;
+}
+
+export interface RandomAccessFileInstance {
+    open(path: string, mode: string): string;
+    read(id: string): number;
+    readBytes(id: string, len: number): string;
+    readBoolean(id: string): boolean;
+    readByte(id: string): number;
+    readInt(id: string): number;
+    readLong(id: string): number;
+    readShort(id: string): number;
+    readFloat(id: string): number;
+    readDouble(id: string): number;
+    readUTF(id: string): string;
+    readLine(id: string): string | null;
+    write(id: string, b: number): void;
+    writeBase64(id: string, data: string): void;
+    writeBoolean(id: string, v: boolean): void;
+    writeByte(id: string, v: number): void;
+    writeInt(id: string, v: number): void;
+    writeLong(id: string, v: number): void;
+    writeShort(id: string, v: number): void;
+    writeFloat(id: string, v: number): void;
+    writeDouble(id: string, v: number): void;
+    writeUTF(id: string, str: string): void;
+    seek(id: string, pos: number): boolean;
+    getFilePointer(id: string): number;
+    length(id: string): number;
+    setLength(id: string, newLength: number): boolean;
+    close(id: string): boolean;
+}
+
+/**
+ * File-system interface. Check {@link KsuIO.support} before use.
+ */
+export interface KsuIO {
+    /** Whether the file interface is available in the current environment. */
+    readonly support: boolean;
+    /** Version of the io interface, `0` when unsupported. */
+    readonly version: number;
+    File(path: string): FileInstance;
+    FileInputStream(): FileInputStreamInstance;
+    FileOutputStream(): FileOutputStreamInstance;
+    RandomAccessFile(): RandomAccessFileInstance;
+}
+
+/**
+ * Supported since KernelSU v3.3.1-28 (32708)
+ * 
+ * File-system helpers (file, stream and random-access-file interfaces).
+ */
+export const io: KsuIO;

@@ -202,3 +202,107 @@ console.log(info);
 const infos = await getPackagesInfo(['com.android.settings', 'com.android.shell']);
 console.log(infos);
 ```
+
+### io
+
+File-system helpers: `File`, `FileInputStream`, `FileOutputStream` and `RandomAccessFile`.
+
+#### io.support
+
+`boolean` — whether the file interface is available in the current environment. Always check this before calling the other methods.
+
+```javascript
+import { io, toast } from 'kernelsu-alt';
+
+if (!io.support) {
+  toast('Current environment does not support the io interface. Please update KernelSU Manager.');
+}
+```
+
+#### io.version
+
+`number` — version of the io interface, `0` when unsupported.
+
+```javascript
+import { io } from 'kernelsu-alt';
+
+if (io.support) {
+  console.log(io.version);
+}
+```
+
+#### io.File
+
+`File(path)` returns a file object with the following methods:
+
+- Existence: `exists()`, `isFile()`, `isDirectory()`, `isHidden()`, `isBlock()`, `isCharacter()`, `isSymlink()`
+- Permissions: `canRead()`, `canWrite()`, `canExecute()`, `setReadOnly()`, `setReadable(readable, ownerOnly)`, `setWritable(writable, ownerOnly)`, `setExecutable(executable, ownerOnly)`
+- Modification: `createNewFile()`, `delete()`, `deleteRecursive()`, `mkdir()`, `mkdirs()`, `renameTo(destPath)`, `createNewSymlink(target)`, `createNewLink(existing)`, `clear()`
+- Listing: `list()`, `listFiles()` — both return a `string[]`
+- Metadata: `length()`, `lastModified()`, `setLastModified(time)`, `getFreeSpace()`, `getTotalSpace()`, `getUsableSpace()`
+- Paths: `getAbsolutePath()`, `getCanonicalPath()`, `getParent()`, `getPath()`, `getName()`
+- Streams: `newInputStream()`, `newOutputStream(append?)` — return stream ids
+
+```javascript
+import { io } from 'kernelsu-alt';
+
+const file = io.File('/data/adb/modules/my_module/config.txt');
+if (file.exists()) {
+  console.log(file.length(), file.lastModified());
+} else {
+  file.createNewFile();
+}
+```
+
+#### io.FileInputStream
+
+```javascript
+import { io } from 'kernelsu-alt';
+
+const fis = io.FileInputStream();
+const id = fis.open('/data/adb/modules/my_module/config.txt');
+console.log(fis.read(id));
+fis.close(id);
+```
+
+- `open(path)` `<string>` Opens the file, returns a stream id.
+- `read(id, maxBytes?)` `<string>` Reads the content (base64), optionally limited to `maxBytes`.
+- `available(id)` `<number>`
+- `close(id)` `<boolean>`
+
+#### io.FileOutputStream
+
+```javascript
+import { io } from 'kernelsu-alt';
+
+const fos = io.FileOutputStream();
+const id = fos.open('/data/local/tmp/test.txt', false); // append = false
+fos.write(id, btoa('hello world'));
+fos.flush(id);
+fos.close(id);
+```
+
+- `open(path, append?)` `<string>` Opens the file, returns a stream id.
+- `write(id, base64)` `<boolean>`
+- `writeByte(id, b)` `<boolean>`
+- `flush(id)` `<boolean>`
+- `close(id)` `<boolean>`
+
+#### io.RandomAccessFile
+
+```javascript
+import { io } from 'kernelsu-alt';
+
+const raf = io.RandomAccessFile();
+const id = raf.open('/data/local/tmp/test.bin', 'rw');
+raf.writeInt(id, 42);
+raf.seek(id, 0);
+console.log(raf.readInt(id));
+raf.close(id);
+```
+
+- `open(path, mode)` `<string>` `mode` is `"r"`, `"w"`, `"rw"` or `"rws"`.
+- Reads: `read(id)`, `readBytes(id, len)`, `readBoolean(id)`, `readByte(id)`, `readInt(id)`, `readLong(id)`, `readShort(id)`, `readFloat(id)`, `readDouble(id)`, `readUTF(id)`, `readLine(id)`
+- Writes: `write(id, b)`, `writeBase64(id, data)`, `writeBoolean(id, v)`, `writeByte(id, v)`, `writeInt(id, v)`, `writeLong(id, v)`, `writeShort(id, v)`, `writeFloat(id, v)`, `writeDouble(id, v)`, `writeUTF(id, str)`
+- Position/size: `seek(id, pos)`, `getFilePointer(id)`, `length(id)`, `setLength(id, newLength)`
+- `close(id)` `<boolean>`
