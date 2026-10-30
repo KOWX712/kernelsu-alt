@@ -157,6 +157,8 @@ exit();
 
 ### listPackages
 
+> Deprecated: use [`pm.listPackages`](#pmlistpackages) instead.
+
 Lists installed packages on the Android system.
 - `type` `<string>` The type of packages to list. Can be one of `'user'`, `'system'`, or `'all'`. Defaults to `'all'`.
 
@@ -175,6 +177,8 @@ console.log(userPackages);
 ```
 
 ### getPackagesInfo
+
+> Deprecated: use [`pm.getPackagesInfo`](#pmgetpackagesinfo) instead.
 
 Retrieves detailed information for one or more packages.
 - `pkg` `<string|string[]>` A single package name or an array of package names.
@@ -202,6 +206,90 @@ console.log(info);
 const infos = await getPackagesInfo(['com.android.settings', 'com.android.shell']);
 console.log(infos);
 ```
+
+### pm
+
+Package-manager helpers, multi-user aware. A package installed for several users (e.g. `com.android.bluetooth` with uid `1002` for user 0 and `1001002` for user 10) is listed once by `pm.listPackages`, and yields one info entry per uid from `pm.getPackagesInfo`.
+
+Both methods work on every manager version: when `pm.support` is `false` they transparently fall back to the legacy [`listPackages`](#listpackages) / [`getpackagesinfo`](#getpackagesinfo) apis and adapt their result to the same return shape.
+
+```javascript
+import { pm } from 'kernelsu-alt';
+
+const packages = await pm.listPackages('user');
+const infos = await pm.getPackagesInfo(['com.android.settings', 'com.android.shell']);
+```
+
+#### pm.support
+
+`boolean` — whether the multi-user pm interface is available in the current environment. Evaluated once when the module loads.
+
+#### pm.version
+
+`number` — the pm API version provided by the manager (Kotlin side) through the `ksu.pm` bridge. `0` when the bridge is unavailable.
+
+```javascript
+import { pm } from 'kernelsu-alt';
+
+if (!pm.support) {
+  console.log(`pm interface unavailable, legacy fallback in use (version ${pm.version})`);
+}
+```
+
+#### pm.listPackages
+
+Lists installed package names, deduplicated across users.
+- `type` `<string>` The type of packages to list. Can be `'user'`, `'system'`, or `'all'`. Defaults to `'all'`.
+
+Returns a `Promise<string[]>` of unique package names.
+- when supported: the `ksu.pm().listPackages(type)` result (already deduplicated).
+- when unsupported: the legacy [`listPackages`](#listpackages) result with duplicated entries mapped out.
+
+```javascript
+import { pm } from 'kernelsu-alt';
+
+// list user packages
+const packages = await pm.listPackages('user');
+```
+
+- tips: when the pm interface is available, you can use `ksu://icon/{packageName}` to get the app icon.
+
+```javascript
+img.src = `ksu://icon/${packageName}`;
+```
+
+#### pm.getPackagesInfo
+
+Gets information for a list of packages, one entry per uid.
+- `packages` `<string[]>` The list of package names.
+
+Returns a `Promise<Array<PackageInfoPerUid | PackageInfoError>>` — a flat array with one entry per uid for each resolved package, following the input package order, with uids ascending within a package. If a package is missing or inaccessible, the entry contains `packageName` and `error` instead.
+- when supported: the new `ksu.pm().getPackagesInfo(packages)` result.
+- when unsupported: the legacy [`getPackagesInfo`](#getpackagesinfo) result with each entry converted to the `PackageInfoPerUid` shape (`userId` added).
+
+```javascript
+import { pm } from 'kernelsu-alt';
+
+const infos = await pm.getPackagesInfo(['com.android.settings', 'com.android.shell']);
+console.log(infos[0].userId);
+```
+
+#### PackageInfoPerUid
+
+An object contains:
+
+- `packageName` `<string>` Package name of the application.
+- `versionName` `<string>` Version of the application. Empty string if unavailable.
+- `versionCode` `<number>` Version code of the application.
+- `appLabel` `<string>` Display name of the application.
+- `isSystem` `<boolean | null>` Whether the application is a system app. `null` if application info is unavailable.
+- `uid` `<number | null>` UID of the application for one user, e.g. `1002` or `1001002`. `null` if application info is unavailable.
+- `userId` `<number | null>` User id the uid belongs to, i.e. `uid / 100000`. `null` if application info is unavailable — this is the field added for legacy fallback entries.
+
+If a package could not be resolved, the returned object contains:
+
+- `packageName` `<string>` The requested package name.
+- `error` `<string>` Reason the package information could not be returned.
 
 ### io
 

@@ -121,6 +121,7 @@ export function toast(message: string): void;
  * Fallback to pm list packages when unsupported
  * 
  * List installed packages
+ * @deprecated Use {@link pm.listPackages} instead.
  * @param type - The type of packages to list: "user", "system", or "all".
  */
 export function listPackages(type?: "user" | "system" | "all"): Promise<string[]>;
@@ -130,10 +131,57 @@ export function listPackages(type?: "user" | "system" | "all"): Promise<string[]
  * Supported since APatch 11159
  * 
  * Retrieves detailed information for one or more packages.
+ * @deprecated Use {@link pm.getPackagesInfo} instead.
  * @param pkg - A single package name or an array of package names.
  */
 export function getPackagesInfo(pkg: string): Promise<PackagesInfo>;
 export function getPackagesInfo(pkg: string[]): Promise<PackagesInfo[]>;
+
+/**
+ * Error entry returned when a package cannot be resolved.
+ */
+export interface PackageInfoError {
+    /** The requested package name. */
+    packageName: string;
+    /** Reason the package information could not be returned. */
+    error: string;
+}
+
+/**
+ * Package information with the user id it belongs to.
+ */
+export interface PackageInfoPerUid extends PackagesInfo {
+    /** User id the uid belongs to, i.e. `uid / 100000`. `null` if unavailable. */
+    userId: number | null;
+}
+
+/**
+ * Package-manager helpers.
+ */
+export interface KsuPm {
+    /** Whether the pm interface is available in the current environment. */
+    readonly support: boolean;
+    /** Version of the pm interface, `0` when unsupported. */
+    readonly version: number;
+    /**
+     * List installed package names, deduplicated across users.
+     * Falls back to the legacy {@link listPackages} when unsupported.
+     */
+    listPackages(type?: "user" | "system" | "all"): Promise<string[]>;
+    /**
+     * Get information for a list of packages, one entry per uid.
+     * Falls back to the legacy {@link getPackagesInfo} when unsupported, converting every entry to the {@link PackageInfoPerUid} shape.
+     */
+    getPackagesInfo(packages: string[]): Promise<Array<PackageInfoPerUid | PackageInfoError>>;
+}
+
+/**
+ * Supported since KernelSU v3.3.1-29 (32709)
+ * 
+ * Package-manager helper.
+ */
+export const pm: KsuPm;
+
 /**
  * Close the WebUI window.
  */

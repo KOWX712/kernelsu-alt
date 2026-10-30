@@ -194,6 +194,7 @@ function toast(message) {
  * Fallback to pm list packages when unsupported
  * 
  * List installed packages
+ * @deprecated Use pm.listPackages instead
  * @param {string} [type="all"] - The type of packages to list: "user", "system", or "all".
  * @returns {Promise<string[]>} A promise that resolves to an array of package names.
  */
@@ -254,6 +255,7 @@ async function listPackages(type) {
  * Supported since APatch 11159
  * 
  * Retrieves detailed information for one or more packages.
+ * @deprecated Use pm.getPackagesInfo instead
  * @param {string|string[]} pkg - A single package name or an array of package names.
  * @returns {Promise<PackagesInfo|PackagesInfo[]>} Resolves with:
  *   - a single package information object if one package is provided
@@ -291,6 +293,74 @@ function getPackagesInfo(pkg) {
     });
 }
 
+const pmSupported = isKsuWebui() && typeof ksu.pm === "function";
+
+/**
+ * Convert a legacy getPackagesInfo entry into the PackageInfoPerUid shape.
+ * Error entries ({@link PackageInfoError}) are passed through unchanged.
+ * @param {object} entry - A legacy package info object.
+ * @returns {object} The entry with a userId field added.
+ */
+function toPackageInfoPerUid(entry) {
+    if (entry === null || typeof entry !== "object" || "error" in entry) {
+        return entry;
+    }
+    const uid = typeof entry.uid === "number" ? entry.uid : null;
+    return { ...entry, userId: uid === null ? null : Math.floor(uid / 100000) };
+}
+
+/**
+ * Supported since KernelSU v3.3.1-29 (32709)
+ * 
+ * Package-manager helpers (multi-user aware).
+ * When {@link pm.support} is false both methods fall back to the legacy
+ */
+const pm = {
+    support: pmSupported,
+    version: pmSupported ? ksu.pm().version() : 0,
+
+    /**
+     * @param {string} [type="all"] - The type of packages to list: "user", "system", or "all".
+     * @returns {Promise<string[]>} Unique package names.
+     */
+    async listPackages(type) {
+        if (pmSupported) {
+            try {
+                return JSON.parse(ksu.pm().listPackages(type));
+            } catch (error) {
+                // Fallback to the legacy listPackages
+            }
+        }
+
+        const packages = await listPackages(type);
+        return [...new Set(packages)];
+    },
+
+    /**
+     * Get information for a list of packages, one entry per uid.
+     * @param {string[]} packages - The list of package names.
+     * @returns {Promise<Array<object>>} One entry per uid, or packageName/error.
+     */
+    async getPackagesInfo(packages) {
+        const pkgs = Array.isArray(packages) ? packages : [packages];
+        if (pkgs.length === 0) {
+            return [];
+        }
+
+        if (pmSupported) {
+            try {
+                return JSON.parse(ksu.pm().getPackagesInfo(JSON.stringify(pkgs)));
+            } catch (error) {
+                // Fallback to the legacy getPackagesInfo
+            }
+        }
+
+        const legacy = await getPackagesInfo(pkgs);
+        const entries = Array.isArray(legacy) ? legacy : [legacy];
+        return entries.map(toPackageInfoPerUid);
+    },
+};
+
 /**
  * Close the WebUI window.
  */
@@ -306,7 +376,6 @@ const ioSupported = isKsuWebui() && typeof ksu.io === "function";
  * Supported since KernelSU v3.3.1-28 (32708)
  * 
  * File-system helpers (file, stream and random-access-file interfaces).
- * Check {@link io.support} before use.
  */
 const io = {
     support: ioSupported,
@@ -440,4 +509,5 @@ export {
     isKsuWebui,
     exit,
     io,
+    pm,
 };
